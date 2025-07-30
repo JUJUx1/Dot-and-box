@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dot & Boxes</title>
+    <style>
+        :root {
+            --primary-color: #4285f4;
+            --secondary-color: #34a853;
+            --accent-color: #ea4335;
+            --light-color: #f8f9fa;
+            --dark-color: #202124;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-grow: 1;
+            max-width: 100%;
+            overflow: auto;
+        }
+        
+        .game-board {
+            position: relative;
+            margin: 20px auto;
+            touch-action: manipulation;
+        }
+        
+        .dot {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: var(--dark-color);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .line {
+            position: absolute;
+            background-color: #aaa;
+            transition: background-color 0.3s;
+        }
+        
+        .horizontal-line {
+            height: 4px;
+            transform-origin: left center;
+        }
+        
+        .vertical-line {
+            width: 4px;
+            transform-origin: center top;
+        }
+        
+        .line:hover, .line.highlight {
+            background-color: var(--primary-color);
+            cursor: pointer;
+        }
+        
+        .box {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: white;
+            opacity: 0.9;
+            transition: background-color 0.3s;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            width: 100%;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        button:hover {
+            background-color: #3367d6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .player-info {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        .player-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            min-width: 120px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .player-card.active {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border: 2px solid var(--primary-color);
+        }
+        
+        .player-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .player-score {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .player-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin: 0 auto 5px;
+        }
+        
+        .game-status {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+            min-height: 24px;
+            color: var(--primary-color);
+        }
+        
+        .settings-panel {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 400px;
+            width: 100%;
+            margin: 20px auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1001;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .settings-panel h2 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .player-inputs {
+            margin-top: 20px;
+        }
+        
+        .player-input {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+        
+        .player-input input {
+            flex-grow: 1;
+        }
+        
+        .player-input .player-name-input {
+            min-width: 120px;
+        }
+        
+        .player-input .player-initials-input {
+            width: 60px;
+        }
+        
+        .player-input .player-color-input {
+            width: 40px;
+            height: 40px;
+            padding: 2px;
+        }
+        
+        .color-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .add-player {
+            display: block;
+            width: 100%;
+            background-color: var(--secondary-color);
+            margin-top: 10px;
+        }
+        
+        .remove-player {
+            background-color: var(--accent-color);
+            padding: 8px 12px;
+            min-width: 40px;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .winner-modal {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+        }
+        
+        .winner-modal h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .winner-name {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: var(--secondary-color);
+        }
+        
+        .winner-score {
+            font-size: 1.5rem;
+            color: var(--dark-color);
+            margin-bottom: 30px;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .player-card {
+                min-width: 100px;
+                padding: 10px;
+            }
+            
+            button {
+                padding: 10px 15px;
+            }
+            
+            .settings-panel {
+                width: 90%;
+                padding: 15px;
+            }
+            
+            .player-input {
+                flex-wrap: wrap;
+            }
+            
+            .player-input .player-name-input {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Dot & Boxes</h1>
+    </header>
+    
+    <div class="game-container">
+        <div class="player-info" id="player-info"></div>
+        
+        <div class="game-status" id="game-status"></div>
+        
+        <div class="game-board" id="game-board"></div>
+        
+        <div class="controls">
+            <button id="new-game-btn">New Game</button>
+            <button id="settings-btn">Settings</button>
+        </div>
+    </div>
+    
+    <div class="overlay" id="settings-overlay"></div>
+    <div class="settings-panel" id="settings-panel">
+        <h2>Game Settings</h2>
+        
+        <div class="form-group">
+            <label for="board-size">Board Size</label>
+            <select id="board-size">
+                <option value="3">3x3 (Small)</option>
+                <option value="4" selected>4x4 (Medium)</option>
+                <option value="5">5x5 (Large)</option>
+                <option value="6">6x6 (X-Large)</option>
+            </select>
+        </div>
+        
+        <div class="player-inputs" id="player-inputs">
+            <h3>Players</h3>
+            <!-- Player inputs will be added here -->
+        </div>
+        
+        <button class="add-player" id="add-player-btn">Add Player</button>
+        
+        <div class="controls" style="margin-top: 20px;">
+            <button id="save-settings-btn">Save Settings</button>
+            <button id="cancel-settings-btn">Cancel</button>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="winner-modal">
+        <div class="winner-modal">
+            <h2>Game Over!</h2>
+            <div class="winner-name" id="winner-name"></div>
+            <div class="winner-score" id="winner-score"></div>
+            <button id="play-again-btn">Play Again</button>
+        </div>
+    </div>
+    
+    <script>
+        // Game state
+        const state = {
+            boardSize: 4,
+            players: [
+                { id: 1, name: 'Player 1', initials: 'P1', color: '#4285f4', score: 0 },
+                { id: 2, name: 'Player 2', initials: 'P2', color: '#ea4335', score: 0 }
+            ],
+            currentPlayerIndex: 0,
+            horizontalLines: [],
+            verticalLines: [],
+            boxes: [],
+            gameStarted: false
+        };
+        
+        // DOM elements
+        const elements = {
+            gameBoard: document.getElementById('game-board'),
+            playerInfo: document.getElementById('player-info'),
+            gameStatus: document.getElementById('game-status'),
+            settingsPanel: document.getElementById('settings-panel'),
+            settingsOverlay: document.getElementById('settings-overlay'),
+            boardSizeSelect: document.getElementById('board-size'),
+            playerInputs: document.getElementById('player-inputs'),
+            winnerModal: document.getElementById('winner-modal'),
+            winnerName: document.getElementById('winner-name'),
+            winnerScore: document.getElementById('winner-score')
+        };
+        
+        // Initialize the game
+        function initGame() {
+            // Clear the board
+            elements.gameBoard.innerHTML = '';
+            
+            // Reset game state
+            const boardSize = state.boardSize;
+            const dotCount = boardSize + 1;
+            const boxCount = boardSize;
+            
+            state.horizontalLines = Array(dotCount).fill().map(() => Array(boxCount).fill(false));
+            state.verticalLines = Array(boxCount).fill().map(() => Array(dotCount).fill(false));
+            state.boxes = Array(boxCount).fill().map(() => Array(boxCount).fill(null));
+            state.currentPlayerIndex = 0;
+            state.players.forEach(player => player.score = 0);
+            state.gameStarted = true;
+            
+            // Set board size
+            const boardWidth = boardSize * 60 + 20;
+            const boardHeight = boardSize * 60 + 20;
+            elements.gameBoard.style.width = `${boardWidth}px`;
+            elements.gameBoard.style.height = `${boardHeight}px`;
+            
+            // Create dots
+            for (let row = 0; row < dotCount; row++) {
+                for (let col = 0; col < dotCount; col++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'dot';
+                    dot.style.left = `${col * 60 + 10}px`;
+                    dot.style.top = `${row * 60 + 10}px`;
+                    elements.gameBoard.appendChild(dot);
+                }
+            }
+            
+            // Create horizontal lines
+            for (let row = 0; row < dotCount; row++) {
+                for (let col = 0; col < boxCount; col++) {
+                    const line = document.createElement('div');
+                    line.className = 'line horizontal-line';
+                    line.style.left = `${col * 60 + 10}px`;
+                    line.style.top = `${row * 60 + 8}px`;
+                    line.style.width = '60px';
+                    line.dataset.row = row;
+                    line.dataset.col = col;
+                    line.dataset.type = 'horizontal';
+                    
+                    line.addEventListener('click', () => handleLineClick('horizontal', row, col));
+                    elements.gameBoard.appendChild(line);
+                }
+            }
+            
+            // Create vertical lines
+            for (let row = 0; row < boxCount; row++) {
+                for (let col = 0; col < dotCount; col++) {
+                    const line = document.createElement('div');
+                    line.className = 'line vertical-line';
+                    line.style.left = `${col * 60 + 8}px`;
+                    line.style.top = `${row * 60 + 10}px`;
+                    line.style.height = '60px';
+                    line.dataset.row = row;
+                    line.dataset.col = col;
+                    line.dataset.type = 'vertical';
+                    
+                    line.addEventListener('click', () => handleLineClick('vertical', row, col));
+                    elements.gameBoard.appendChild(line);
+                }
+            }
+            
+            // Create boxes (initially hidden)
+            for (let row = 0; row < boxCount; row++) {
+                for (let col = 0; col < boxCount; col++) {
+                    const box = document.createElement('div');
+                    box.className = 'box';
+                    box.style.left = `${col * 60 + 12}px`;
+                    box.style.top = `${row * 60 + 12}px`;
+                    box.style.width = '56px';
+                    box.style.height = '56px';
+                    box.dataset.row = row;
+                    box.dataset.col = col;
+                    elements.gameBoard.appendChild(box);
+                }
+            }
+            
+            updatePlayerInfo();
+            updateGameStatus();
+        }
+        
+        // Handle line click
+        function handleLineClick(type, row, col) {
+            if (!state.gameStarted) return;
+            
+            // Mark the line as claimed
+            const player = state.players[state.currentPlayerIndex];
+            let boxCompleted = false;
+            
+            if (type === 'horizontal') {
+                if (state.horizontalLines[row][col]) return;
+                state.horizontalLines[row][col] = true;
+                
+                // Check for completed boxes above and below
+                if (row > 0) {
+                    if (checkBoxCompletion(row - 1, col)) {
+                        boxCompleted = true;
+                    }
+                }
+                if (row < state.boardSize) {
+                    if (checkBoxCompletion(row, col)) {
+                        boxCompleted = true;
+                    }
+                }
+            } else { // vertical
+                if (state.verticalLines[row][col]) return;
+                state.verticalLines[row][col] = true;
+                
+                // Check for completed boxes to left and right
+                if (col > 0) {
+                    if (checkBoxCompletion(row, col - 1)) {
+                        boxCompleted = true;
+                    }
+                }
+                if (col < state.boardSize) {
+                    if (checkBoxCompletion(row, col)) {
+                        boxCompleted = true;
+                    }
+                }
+            }
+            
+            // Update the UI
+            updateBoard();
+            
+            // If no box was completed, switch players
+            if (!boxCompleted) {
+                state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
+                updateGameStatus();
+            } else {
+                // Check if game is over
+                if (isGameOver()) {
+                    endGame();
+                }
+            }
+        }
+        
+        // Check if a box is completed
+        function checkBoxCompletion(row, col) {
+            // Check if all four sides are claimed
+            if (state.horizontalLines[row][col] && 
+                state.horizontalLines[row + 1][col] && 
+                state.verticalLines[row][col] && 
+                state.verticalLines[row][col + 1]) {
+                
+                // Mark the box as claimed by the current player
+                if (state.boxes[row][col] === null) {
+                    state.boxes[row][col] = state.currentPlayerIndex;
+                    state.players[state.currentPlayerIndex].score++;
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        // Update the board UI
+        function updateBoard() {
+            // Update horizontal lines
+            document.querySelectorAll('.horizontal-line').forEach(line => {
+                const row = parseInt(line.dataset.row);
+                const col = parseInt(line.dataset.col);
+                
+                if (state.horizontalLines[row][col]) {
+                    line.style.backgroundColor = state.players[state.currentPlayerIndex].color;
+                    line.classList.remove('highlight');
+                }
+            });
+            
+            // Update vertical lines
+            document.querySelectorAll('.vertical-line').forEach(line => {
+                const row = parseInt(line.dataset.row);
+                const col = parseInt(line.dataset.col);
+                
+                if (state.verticalLines[row][col]) {
+                    line.style.backgroundColor = state.players[state.currentPlayerIndex].color;
+                    line.classList.remove('highlight');
+                }
+            });
+            
+            // Update boxes
+            document.querySelectorAll('.box').forEach(box => {
+                const row = parseInt(box.dataset.row);
+                const col = parseInt(box.dataset.col);
+                
+                if (state.boxes[row][col] !== null) {
+                    const playerIdx = state.boxes[row][col];
+                    box.style.backgroundColor = state.players[playerIdx].color;
+                    box.textContent = state.players[playerIdx].initials;
+                    box.style.display = 'flex';
+                } else {
+                    box.style.display = 'none';
+                }
+            });
+            
+            updatePlayerInfo();
+        }
+        
+        // Update player info UI
+        function updatePlayerInfo() {
+            elements.playerInfo.innerHTML = '';
+            
+            state.players.forEach((player, index) => {
+                const playerCard = document.createElement('div');
+                playerCard.className = `player-card ${index === state.currentPlayerIndex ? 'active' : ''}`;
+                
+                playerCard.innerHTML = `
+                    <div class="player-color" style="background-color: ${player.color}"></div>
+                    <div class="player-name">${player.name}</div>
+                    <div class="player-score">${player.score}</div>
+                `;
+                
+                elements.playerInfo.appendChild(playerCard);
+            });
+        }
+        
+        // Update game status UI
+        function updateGameStatus() {
+            const currentPlayer = state.players[state.currentPlayerIndex];
+            elements.gameStatus.textContent = `${currentPlayer.name}'s turn`;
+        }
+        
+        // Check if game is over
+        function isGameOver() {
+            const totalBoxes = state.boardSize * state.boardSize;
+            const claimedBoxes = state.players.reduce((sum, player) => sum + player.score, 0);
+            return claimedBoxes === totalBoxes;
+        }
+        
+        // End the game
+        function endGame() {
+            state.gameStarted = false;
+            
+            // Determine winner(s)
+            let maxScore = -1;
+            let winners = [];
+            
+            state.players.forEach(player => {
+                if (player.score > maxScore) {
+                    maxScore = player.score;
+                    winners = [player];
+                } else if (player.score === maxScore) {
+                    winners.push(player);
+                }
+            });
+            
+            // Show winner modal
+            if (winners.length === 1) {
+                elements.winnerName.textContent = winners[0].name;
+                elements.winnerScore.textContent = `Score: ${winners[0].score}`;
+            } else {
+                elements.winnerName.textContent = winners.map(w => w.name).join(' & ');
+                elements.winnerScore.textContent = `Tie game! Score: ${winners[0].score}`;
+            }
+            
+            elements.winnerModal.style.display = 'flex';
+        }
+        
+        // Initialize settings panel
+        function initSettingsPanel() {
+            // Set board size
+            elements.boardSizeSelect.value = state.boardSize;
+            
+            // Clear player inputs
+            elements.playerInputs.innerHTML = '<h3>Players</h3>';
+            
+            // Add player inputs
+            state.players.forEach((player, index) => {
+                addPlayerInput(player, index);
+            });
+            
+            // Show settings panel
+            elements.settingsPanel.style.display = 'block';
+            elements.settingsOverlay.style.display = 'block';
+        }
+        
+        // Add player input to settings
+        function addPlayerInput(player = null, index = null) {
+            const playerId = player ? player.id : Date.now();
+            const playerName = player ? player.name : `Player ${elements.playerInputs.querySelectorAll('.player-input').length + 1}`;
+            const playerInitials = player ? player.initials : playerName.substring(0, 2).toUpperCase();
+            const playerColor = player ? player.color : getRandomColor();
+            
+            const playerInput = document.createElement('div');
+            playerInput.className = 'player-input';
+            
+            playerInput.innerHTML = `
+                <input type="text" class="player-name-input" value="${playerName}" placeholder="Player name">
+                <input type="text" class="player-initials-input" value="${playerInitials}" placeholder="Initials" maxlength="3">
+                <input type="color" class="player-color-input" value="${playerColor}">
+                <div class="color-preview" style="background-color: ${playerColor}"></div>
+                ${elements.playerInputs.querySelectorAll('.player-input').length > 1 || index !== null ? 
+                  '<button class="remove-player">×</button>' : ''}
+            `;
+            
+            if (index === null) {
+                elements.playerInputs.appendChild(playerInput);
+            } else {
+                const inputs = elements.playerInputs.querySelectorAll('.player-input');
+                if (index < inputs.length) {
+                    elements.playerInputs.insertBefore(playerInput, inputs[index]);
+                } else {
+                    elements.playerInputs.appendChild(playerInput);
+                }
+            }
+            
+            // Add event listeners
+            const nameInput = playerInput.querySelector('.player-name-input');
+            const initialsInput = playerInput.querySelector('.player-initials-input');
+            const colorInput = playerInput.querySelector('.player-color-input');
+            const colorPreview = playerInput.querySelector('.color-preview');
+            const removeBtn = playerInput.querySelector('.remove-player');
+            
+            colorInput.addEventListener('input', () => {
+                colorPreview.style.backgroundColor = colorInput.value;
+            });
+            
+            if (removeBtn) {
+                removeBtn.addEventListener('click', () => {
+                    playerInput.remove();
+                    // Ensure at least 2 players remain
+                    if (elements.playerInputs.querySelectorAll('.player-input').length < 2) {
+                        addPlayerInput();
+                    }
+                });
+            }
+        }
+        
+        // Save settings
+        function saveSettings() {
+            // Get board size
+            state.boardSize = parseInt(elements.boardSizeSelect.value);
+            
+            // Get players
+            const playerInputs = elements.playerInputs.querySelectorAll('.player-input');
+            
+            // Validate at least 2 players
+            if (playerInputs.length < 2) {
+                alert('Please add at least 2 players');
+                return;
+            }
+            
+            state.players = [];
+            
+            playerInputs.forEach((input, index) => {
+                const name = input.querySelector('.player-name-input').value || `Player ${index + 1}`;
+                const initials = input.querySelector('.player-initials-input').value || name.substring(0, 2).toUpperCase();
+                const color = input.querySelector('.player-color-input').value || getRandomColor();
+                
+                state.players.push({
+                    id: index + 1,
+                    name,
+                    initials,
+                    color,
+                    score: 0
+                });
+            });
+            
+            // Close settings panel
+            closeSettingsPanel();
+            
+            // Start new game
+            initGame();
+        }
+        
+        // Close settings panel
+        function closeSettingsPanel() {
+            elements.settingsPanel.style.display = 'none';
+            elements.settingsOverlay.style.display = 'none';
+        }
+        
+        // Helper function to generate random color
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+        
+        // Event listeners
+        document.getElementById('new-game-btn').addEventListener('click', initGame);
+        
+        document.getElementById('settings-btn').addEventListener('click', initSettingsPanel);
+        
+        document.getElementById('add-player-btn').addEventListener('click', () => {
+            addPlayerInput();
+        });
+        
+        document.getElementById('save-settings-btn').addEventListener('click', saveSettings);
+        
+        document.getElementById('cancel-settings-btn').addEventListener('click', closeSettingsPanel);
+        
+        document.getElementById('play-again-btn').addEventListener('click', () => {
+            elements.winnerModal.style.display = 'none';
+            initGame();
+        });
+        
+        elements.settingsOverlay.addEventListener('click', closeSettingsPanel);
+        
+        // Initialize the game
+        initGame();
+    </script>
+</body>
+</html>
