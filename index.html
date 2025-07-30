@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dot & Boxes</title>
     <style>
         :root {
@@ -17,7 +17,8 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
         
         body {
@@ -26,18 +27,20 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
+            touch-action: manipulation;
         }
         
         header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
+            padding: 5px 0;
         }
         
         h1 {
             color: var(--primary-color);
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
         }
         
         .game-container {
@@ -45,20 +48,22 @@
             flex-direction: column;
             align-items: center;
             flex-grow: 1;
-            max-width: 100%;
+            width: 100%;
             overflow: auto;
         }
         
         .game-board {
             position: relative;
-            margin: 20px auto;
-            touch-action: manipulation;
+            margin: 10px auto;
+            touch-action: none;
+            max-width: 100%;
+            overflow: hidden;
         }
         
         .dot {
             position: absolute;
-            width: 12px;
-            height: 12px;
+            width: 8px;
+            height: 8px;
             background-color: var(--dark-color);
             border-radius: 50%;
             transform: translate(-50%, -50%);
@@ -71,18 +76,17 @@
         }
         
         .horizontal-line {
-            height: 4px;
+            height: 3px;
             transform-origin: left center;
         }
         
         .vertical-line {
-            width: 4px;
+            width: 3px;
             transform-origin: center top;
         }
         
-        .line:hover, .line.highlight {
+        .line.highlight {
             background-color: var(--primary-color);
-            cursor: pointer;
         }
         
         .box {
@@ -91,7 +95,7 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1rem;
             color: white;
             opacity: 0.9;
             transition: background-color 0.3s;
@@ -101,8 +105,8 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 15px;
-            margin: 20px 0;
+            gap: 10px;
+            margin: 15px 0;
             width: 100%;
         }
         
@@ -110,15 +114,16 @@
             background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 1rem;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 0.9rem;
             cursor: pointer;
             transition: all 0.3s;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            min-width: 100px;
         }
         
-        button:hover {
+        button:hover, button:focus {
             background-color: #3367d6;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
@@ -132,59 +137,64 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-bottom: 10px;
             width: 100%;
         }
         
         .player-card {
             background-color: white;
-            border-radius: 10px;
-            padding: 15px;
-            min-width: 120px;
+            border-radius: 8px;
+            padding: 10px;
+            min-width: 0;
+            width: calc(50% - 10px);
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             transition: all 0.3s;
         }
         
         .player-card.active {
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transform: scale(1.03);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             border: 2px solid var(--primary-color);
         }
         
         .player-name {
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .player-score {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             color: var(--primary-color);
         }
         
         .player-color {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
-            margin: 0 auto 5px;
+            margin: 0 auto 3px;
         }
         
         .game-status {
             text-align: center;
-            margin: 15px 0;
-            font-size: 1.2rem;
+            margin: 10px 0;
+            font-size: 1rem;
             font-weight: bold;
-            min-height: 24px;
+            min-height: 20px;
             color: var(--primary-color);
         }
         
         .settings-panel {
             background-color: white;
             border-radius: 10px;
-            padding: 20px;
+            padding: 15px;
+            width: 90%;
             max-width: 400px;
-            width: 100%;
             margin: 20px auto;
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
             display: none;
@@ -198,38 +208,40 @@
         }
         
         .settings-panel h2 {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             color: var(--primary-color);
             text-align: center;
+            font-size: 1.3rem;
         }
         
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         
         label {
             display: block;
             margin-bottom: 5px;
             font-weight: 500;
+            font-size: 0.9rem;
         }
         
         input, select {
             width: 100%;
-            padding: 10px;
+            padding: 8px;
             border: 1px solid #ddd;
             border-radius: 5px;
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
         
         .player-inputs {
-            margin-top: 20px;
+            margin-top: 15px;
         }
         
         .player-input {
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
-            gap: 10px;
+            margin-bottom: 8px;
+            gap: 8px;
         }
         
         .player-input input {
@@ -241,18 +253,18 @@
         }
         
         .player-input .player-initials-input {
-            width: 60px;
+            width: 50px;
         }
         
         .player-input .player-color-input {
-            width: 40px;
-            height: 40px;
+            width: 35px;
+            height: 35px;
             padding: 2px;
         }
         
         .color-preview {
-            width: 30px;
-            height: 30px;
+            width: 25px;
+            height: 25px;
             border-radius: 5px;
             border: 1px solid #ddd;
         }
@@ -261,13 +273,13 @@
             display: block;
             width: 100%;
             background-color: var(--secondary-color);
-            margin-top: 10px;
+            margin-top: 8px;
         }
         
         .remove-player {
             background-color: var(--accent-color);
-            padding: 8px 12px;
-            min-width: 40px;
+            padding: 6px 10px;
+            min-width: 35px;
         }
         
         .modal-overlay {
@@ -286,30 +298,31 @@
         
         .winner-modal {
             background-color: white;
-            padding: 30px;
+            padding: 20px;
             border-radius: 10px;
             text-align: center;
-            max-width: 90%;
-            width: 400px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 350px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
         
         .winner-modal h2 {
             color: var(--primary-color);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
         }
         
         .winner-name {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: bold;
-            margin: 20px 0;
+            margin: 15px 0;
             color: var(--secondary-color);
         }
         
         .winner-score {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             color: var(--dark-color);
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         
         .overlay {
@@ -323,31 +336,64 @@
             display: none;
         }
         
-        @media (max-width: 600px) {
+        /* Touch optimizations */
+        .line {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        /* Very small screens */
+        @media (max-width: 400px) {
             h1 {
-                font-size: 2rem;
+                font-size: 1.5rem;
             }
             
             .player-card {
-                min-width: 100px;
-                padding: 10px;
+                width: 100%;
             }
             
             button {
-                padding: 10px 15px;
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                min-width: 80px;
             }
             
-            .settings-panel {
-                width: 90%;
-                padding: 15px;
+            .player-name {
+                font-size: 0.8rem;
             }
             
-            .player-input {
-                flex-wrap: wrap;
+            .player-score {
+                font-size: 1rem;
             }
             
-            .player-input .player-name-input {
-                min-width: 100%;
+            .game-status {
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Landscape orientation */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .game-container {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+            
+            .player-info {
+                flex-direction: column;
+                width: auto;
+                margin-right: 10px;
+            }
+            
+            .player-card {
+                width: 120px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                width: auto;
+                margin: 10px;
             }
         }
     </style>
@@ -391,7 +437,7 @@
         
         <button class="add-player" id="add-player-btn">Add Player</button>
         
-        <div class="controls" style="margin-top: 20px;">
+        <div class="controls" style="margin-top: 15px;">
             <button id="save-settings-btn">Save Settings</button>
             <button id="cancel-settings-btn">Cancel</button>
         </div>
@@ -418,7 +464,9 @@
             horizontalLines: [],
             verticalLines: [],
             boxes: [],
-            gameStarted: false
+            gameStarted: false,
+            touchStartX: 0,
+            touchStartY: 0
         };
         
         // DOM elements
@@ -452,9 +500,13 @@
             state.players.forEach(player => player.score = 0);
             state.gameStarted = true;
             
+            // Calculate cell size based on screen width
+            const maxWidth = Math.min(window.innerWidth - 40, 500);
+            const cellSize = Math.floor(maxWidth / (boardSize + 0.5));
+            
             // Set board size
-            const boardWidth = boardSize * 60 + 20;
-            const boardHeight = boardSize * 60 + 20;
+            const boardWidth = boardSize * cellSize + 20;
+            const boardHeight = boardSize * cellSize + 20;
             elements.gameBoard.style.width = `${boardWidth}px`;
             elements.gameBoard.style.height = `${boardHeight}px`;
             
@@ -463,8 +515,8 @@
                 for (let col = 0; col < dotCount; col++) {
                     const dot = document.createElement('div');
                     dot.className = 'dot';
-                    dot.style.left = `${col * 60 + 10}px`;
-                    dot.style.top = `${row * 60 + 10}px`;
+                    dot.style.left = `${col * cellSize + 10}px`;
+                    dot.style.top = `${row * cellSize + 10}px`;
                     elements.gameBoard.appendChild(dot);
                 }
             }
@@ -474,14 +526,18 @@
                 for (let col = 0; col < boxCount; col++) {
                     const line = document.createElement('div');
                     line.className = 'line horizontal-line';
-                    line.style.left = `${col * 60 + 10}px`;
-                    line.style.top = `${row * 60 + 8}px`;
-                    line.style.width = '60px';
+                    line.style.left = `${col * cellSize + 10}px`;
+                    line.style.top = `${row * cellSize + 8}px`;
+                    line.style.width = `${cellSize}px`;
                     line.dataset.row = row;
                     line.dataset.col = col;
                     line.dataset.type = 'horizontal';
                     
+                    // Add both mouse and touch events
                     line.addEventListener('click', () => handleLineClick('horizontal', row, col));
+                    line.addEventListener('touchstart', handleTouchStart, { passive: true });
+                    line.addEventListener('touchend', (e) => handleTouchEnd(e, 'horizontal', row, col), { passive: true });
+                    
                     elements.gameBoard.appendChild(line);
                 }
             }
@@ -491,14 +547,18 @@
                 for (let col = 0; col < dotCount; col++) {
                     const line = document.createElement('div');
                     line.className = 'line vertical-line';
-                    line.style.left = `${col * 60 + 8}px`;
-                    line.style.top = `${row * 60 + 10}px`;
-                    line.style.height = '60px';
+                    line.style.left = `${col * cellSize + 8}px`;
+                    line.style.top = `${row * cellSize + 10}px`;
+                    line.style.height = `${cellSize}px`;
                     line.dataset.row = row;
                     line.dataset.col = col;
                     line.dataset.type = 'vertical';
                     
+                    // Add both mouse and touch events
                     line.addEventListener('click', () => handleLineClick('vertical', row, col));
+                    line.addEventListener('touchstart', handleTouchStart, { passive: true });
+                    line.addEventListener('touchend', (e) => handleTouchEnd(e, 'vertical', row, col), { passive: true });
+                    
                     elements.gameBoard.appendChild(line);
                 }
             }
@@ -508,10 +568,10 @@
                 for (let col = 0; col < boxCount; col++) {
                     const box = document.createElement('div');
                     box.className = 'box';
-                    box.style.left = `${col * 60 + 12}px`;
-                    box.style.top = `${row * 60 + 12}px`;
-                    box.style.width = '56px';
-                    box.style.height = '56px';
+                    box.style.left = `${col * cellSize + 12}px`;
+                    box.style.top = `${row * cellSize + 12}px`;
+                    box.style.width = `${cellSize - 4}px`;
+                    box.style.height = `${cellSize - 4}px`;
                     box.dataset.row = row;
                     box.dataset.col = col;
                     elements.gameBoard.appendChild(box);
@@ -520,6 +580,26 @@
             
             updatePlayerInfo();
             updateGameStatus();
+        }
+        
+        // Handle touch start for better mobile interaction
+        function handleTouchStart(e) {
+            const touch = e.touches[0];
+            state.touchStartX = touch.clientX;
+            state.touchStartY = touch.clientY;
+        }
+        
+        // Handle touch end with tap detection
+        function handleTouchEnd(e, type, row, col) {
+            const touch = e.changedTouches[0];
+            const deltaX = Math.abs(touch.clientX - state.touchStartX);
+            const deltaY = Math.abs(touch.clientY - state.touchStartY);
+            
+            // Consider it a tap if movement was less than 10px
+            if (deltaX < 10 && deltaY < 10) {
+                e.preventDefault();
+                handleLineClick(type, row, col);
+            }
         }
         
         // Handle line click
@@ -644,6 +724,8 @@
             state.players.forEach((player, index) => {
                 const playerCard = document.createElement('div');
                 playerCard.className = `player-card ${index === state.currentPlayerIndex ? 'active' : ''}`;
+                playerCard.setAttribute('aria-label', `${player.name}, score: ${player.score}`);
+                playerCard.setAttribute('aria-current', index === state.currentPlayerIndex ? 'true' : 'false');
                 
                 playerCard.innerHTML = `
                     <div class="player-color" style="background-color: ${player.color}"></div>
@@ -839,6 +921,13 @@
         });
         
         elements.settingsOverlay.addEventListener('click', closeSettingsPanel);
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (state.gameStarted) {
+                initGame();
+            }
+        });
         
         // Initialize the game
         initGame();
